@@ -1,122 +1,65 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import { BrowserRouter, Link, Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom'
+import { isFirebaseConfigured } from './lib/firebase'
+import { useAuth } from './context/AuthContext'
+import { claimSession, createSession, getOpenSessions, getSession, getSessionsForUser, saveFeedback } from './services/firestore'
+import { logOut, resetPassword, signIn, signUp } from './services/auth'
+import type { Role, Session } from './types/domain'
+import { sessionStatusLabel } from './types/domain'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/auth" element={<AuthPage />} />
+        <Route element={<ProtectedLayout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/sessions/new" element={<SessionForm />} />
+          <Route path="/sessions/:sessionId" element={<SessionDetails />} />
+          <Route path="/feedback/:sessionId" element={<FeedbackPage />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
+
+function Landing() {
+  return <main className="landing"><header className="site-header"><Link className="brand" to="/"><span className="brand-mark">B</span><span>Beyond the Lessons</span></Link><nav><Link to="/auth?mode=login">Sign in</Link><Link className="button small" to="/auth?mode=signup">Join the movement <span>↗</span></Link></nav></header><section className="hero-section"><div className="hero-copy"><p className="eyebrow">Conversation changes what is possible</p><h1>Make room for every voice.</h1><p className="hero-lede">We connect Thai classrooms with kind, curious English-speaking volunteers for live conversations that build confidence beyond the lesson plan.</p><div className="hero-actions"><Link className="button" to="/auth?mode=signup">Start a connection <span>↗</span></Link><a className="text-link" href="#how-it-works">See how it works <span>↓</span></a></div></div><div className="hero-art"><div className="sun"></div><div className="art-card art-card-back">Different places.<br /><strong>One conversation.</strong></div><div className="art-card art-card-front"><span className="quote-mark">“</span><p>Every student deserves to feel heard.</p><span className="art-caption">A teacher's note from Chiang Mai</span></div><span className="scribble">→</span></div></section><section className="trust-strip"><span>Built for real classrooms</span><span>✦</span><span>Simple. Human. Remote.</span><span>✦</span><span>Made with care in Thailand & Canada</span></section><section id="how-it-works" className="steps"><div><p className="eyebrow">A small step, a wider world</p><h2>Good things happen<br />in conversation.</h2></div><div className="step-grid"><Step number="01" title="Schools open a door" text="Create a classroom session with your topics, notes, and a time that works." /><Step number="02" title="Volunteers show up" text="Approved volunteers find a session that fits their availability and claim it." /><Step number="03" title="Confidence grows" text="Meet online, share a little, and leave the classroom feeling more connected." /></div></section><footer><span>© 2026 Beyond the Lessons</span><span>For classrooms with curiosity.</span></footer></main>
+}
+
+function Step({ number, title, text }: { number: string; title: string; text: string }) { return <article className="step"><span className="step-number">{number}</span><h3>{title}</h3><p>{text}</p></article> }
+
+function ProtectedLayout() {
+  const { user, profile, loading } = useAuth()
+  if (loading) return <div className="loading-screen">Loading your workspace...</div>
+  if (!user) return <Navigate to="/auth?mode=login" replace />
+  return <div className="app-shell"><header className="app-header"><Link className="brand" to="/dashboard"><span className="brand-mark">B</span><span>Beyond the Lessons</span></Link><div className="header-user"><span>{profile?.displayName ?? user.email}</span><button className="button ghost" onClick={() => void logOut()}>Log out</button></div></header><div className="app-content"><aside><Link to="/dashboard">Overview</Link>{profile?.role === 'school' && <Link to="/sessions/new">Create session</Link>}<Link to="/dashboard#sessions">My sessions</Link><Link to="/dashboard#hours">Hours & feedback</Link></aside><main className="workspace"><Routes><Route path="/dashboard" element={<Dashboard />} /><Route path="/sessions/new" element={<SessionForm />} /><Route path="/sessions/:sessionId" element={<SessionDetails />} /><Route path="/feedback/:sessionId" element={<FeedbackPage />} /></Routes></main></div></div>
+}
+
+function AuthPage() {
+  const navigate = useNavigate(); const params = new URLSearchParams(location.search); const [mode, setMode] = useState<'login' | 'signup' | 'reset'>(params.get('mode') === 'signup' ? 'signup' : 'login'); const [role, setRole] = useState<Role>('volunteer'); const [email, setEmail] = useState(''); const [password, setPassword] = useState(''); const [name, setName] = useState(''); const [message, setMessage] = useState(''); const [busy, setBusy] = useState(false)
+  async function submit(event: FormEvent) { event.preventDefault(); setBusy(true); setMessage(''); try { if (!isFirebaseConfigured) throw new Error('Add your Firebase environment variables to connect this workspace.'); if (mode === 'reset') { await resetPassword(email); setMessage('Check your inbox for a password reset link.'); } else if (mode === 'signup') { await signUp(email, password, name, role); setMessage('Application received. An admin will review your account.'); } else { await signIn(email, password); navigate('/dashboard'); } } catch (error) { setMessage(error instanceof Error ? error.message : 'Something went wrong.'); } finally { setBusy(false) } }
+  return <main className="auth-page"><Link className="brand" to="/"><span className="brand-mark">B</span><span>Beyond the Lessons</span></Link><div className="auth-card"><p className="eyebrow">{mode === 'signup' ? 'Join the circle' : mode === 'reset' ? 'A fresh start' : 'Welcome back'}</p><h1>{mode === 'signup' ? 'Bring your voice.' : mode === 'reset' ? 'Reset your password.' : 'Good to see you.'}</h1><p className="muted">{mode === 'signup' ? 'Choose how you would like to take part.' : 'Sign in to continue your work.'}</p>{message && <div className="notice">{message}</div>}<form onSubmit={submit}>{mode === 'signup' && <><label>Your name<input required value={name} onChange={(event) => setName(event.target.value)} /></label><label>I am joining as<select value={role} onChange={(event) => setRole(event.target.value as Role)}><option value="volunteer">A volunteer</option><option value="school">A school coordinator</option></select></label></>}<label>Email<input type="email" required value={email} onChange={(event) => setEmail(event.target.value)} /></label>{mode !== 'reset' && <label>Password<input type="password" minLength={6} required value={password} onChange={(event) => setPassword(event.target.value)} /></label>}<button className="button full" disabled={busy}>{busy ? 'Please wait...' : mode === 'signup' ? 'Submit application' : mode === 'reset' ? 'Send reset link' : 'Sign in'} <span>↗</span></button></form><div className="auth-switch">{mode === 'login' && <button onClick={() => setMode('reset')}>Forgot password?</button>}{mode === 'reset' && <button onClick={() => setMode('login')}>Back to sign in</button>}{mode !== 'reset' && <button onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}>{mode === 'login' ? 'Need an account? Join us' : 'Already have an account? Sign in'}</button>}</div></div></main>
+}
+
+function Dashboard() {
+  const { user, profile } = useAuth(); const [sessions, setSessions] = useState<Session[]>([]); const [openSessions, setOpenSessions] = useState<Session[]>([]); const [message, setMessage] = useState(''); const [loading, setLoading] = useState(true)
+  useEffect(() => { if (!user || !profile) return; void Promise.all([profile.role === 'volunteer' ? getSessionsForUser(user.uid, 'volunteer') : profile.role === 'school' ? getSessionsForUser(user.uid, 'school') : Promise.resolve([]), profile.role === 'volunteer' ? getOpenSessions() : Promise.resolve([])]).then(([mine, open]) => { setSessions(mine); setOpenSessions(open); setLoading(false) }).catch(() => { setMessage('We could not load your sessions yet.'); setLoading(false) }) }, [user, profile])
+  const approved = profile?.approvalStatus === 'approved'; const greeting = profile?.role === 'school' ? 'Your classroom, your invitation.' : profile?.role === 'admin' ? 'A clear view of the circle.' : 'Your next conversation starts here.'
+  async function claim(id: string) { if (!user) return; try { await claimSession(id, user.uid, profile?.displayName ?? user.email ?? 'Volunteer'); setOpenSessions((current) => current.filter((session) => session.id !== id)); setMessage('Session claimed. The school will be notified.'); } catch (error) { setMessage(error instanceof Error ? error.message : 'Unable to claim this session.') } }
+  if (loading) return <div className="loading-screen">Loading your workspace...</div>
+  return <><div className="workspace-heading"><div><p className="eyebrow">{profile?.role === 'school' ? 'School workspace' : profile?.role === 'admin' ? 'Admin workspace' : 'Volunteer workspace'}</p><h1>{greeting}</h1><p className="muted">{approved ? 'Thank you for making space for connection.' : 'Your application is being reviewed. We will be in touch soon.'}</p></div>{profile?.role === 'school' && approved && <Link className="button" to="/sessions/new">Create a session <span>↗</span></Link>}</div>{message && <div className="notice">{message}</div>}{profile?.role === 'volunteer' && approved && <section className="dashboard-section"><div className="section-heading"><div><p className="eyebrow">Open invitations</p><h2>Find your next classroom.</h2></div><span className="count">{openSessions.length} available</span></div>{openSessions.length ? <div className="session-grid">{openSessions.map((session) => <SessionCard key={session.id} session={session} action={<button className="button small" onClick={() => void claim(session.id)}>Claim session</button>} />)}</div> : <EmptyState title="No open sessions yet" text="New opportunities will appear here when a school creates a session that fits your availability." />}</section>}<section id="sessions" className="dashboard-section"><div className="section-heading"><div><p className="eyebrow">Your calendar</p><h2>{profile?.role === 'school' ? 'Classroom sessions' : 'Your sessions'}</h2></div></div>{sessions.length ? <div className="session-list">{sessions.map((session) => <SessionCard key={session.id} session={session} />)}</div> : <EmptyState title="Your first session is waiting" text={approved ? 'When a session is claimed or created, it will show up here.' : 'Once your application is approved, this is where your sessions will live.'} />}</section><section id="hours" className="stats-row"><div><span className="stat-value">{sessions.filter((session) => session.status === 'COMPLETED').reduce((total, session) => total + (session.durationMinutes === 60 ? 1 : 0.5), 0).toFixed(1)}</span><span className="stat-label">Volunteer hours</span></div><div><span className="stat-value">{sessions.filter((session) => session.status === 'COMPLETED').length}</span><span className="stat-label">Conversations completed</span></div><div><span className="stat-value">{sessions.filter((session) => session.status === 'CONFIRMED' || session.status === 'CLAIMED').length}</span><span className="stat-label">Coming up</span></div></section></>
+}
+
+function SessionCard({ session, action }: { session: Session; action?: ReactNode }) { return <article className="session-card"><div className="session-date"><strong>{new Date(`${session.date}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</strong><span>{session.startTime}</span></div><div className="session-info"><span className={`status status-${session.status.toLowerCase()}`}>{sessionStatusLabel[session.status]}</span><h3>{session.classroomName}</h3><p>{session.schoolName ?? 'Classroom session'} · {session.durationMinutes} minutes</p><div className="topic-row">{session.topics.slice(0, 3).map((topic) => <span key={topic}>{topic}</span>)}</div></div><div className="session-action">{action ?? <Link className="text-link" to={`/sessions/${session.id}`}>View details →</Link>}</div></article> }
+function EmptyState({ title, text }: { title: string; text: string }) { return <div className="empty-state"><span className="empty-icon">✦</span><h3>{title}</h3><p>{text}</p></div> }
+
+function SessionForm() { const { user } = useAuth(); const navigate = useNavigate(); const [busy, setBusy] = useState(false); const [message, setMessage] = useState(''); async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); if (!user) return; const form = new FormData(event.currentTarget); const topics = String(form.get('topics') ?? '').split(',').map((topic) => topic.trim()).filter(Boolean); const duration = Number(form.get('duration')) as 30 | 60; setBusy(true); try { await createSession({ schoolId: user.uid, classroomName: String(form.get('classroomName')), date: String(form.get('date')), startTime: String(form.get('startTime')), endTime: String(form.get('endTime')), timezone: String(form.get('timezone')), durationMinutes: duration, studentCount: Number(form.get('studentCount')), topics, teacherNotes: String(form.get('teacherNotes')), meetingUrl: String(form.get('meetingUrl') || ''), status: 'OPEN' }); navigate('/dashboard'); } catch (error) { setMessage(error instanceof Error ? error.message : 'Unable to create session.') } finally { setBusy(false) } } return <section className="form-page"><Link className="back-link" to="/dashboard">← Back to overview</Link><p className="eyebrow">Create a classroom invitation</p><h1>Open a door to your classroom.</h1><p className="form-intro">Give volunteers the context they need to arrive ready and curious. You can update the session later.</p>{message && <div className="notice error">{message}</div>}<form className="long-form" onSubmit={submit}><div className="form-grid"><label>Classroom or group name<input name="classroomName" required placeholder="Grade 5 English Club" /></label><label>Student count<input name="studentCount" type="number" min="1" required placeholder="25" /></label><label>Date<input name="date" type="date" required /></label><label>Thailand start time<input name="startTime" type="time" required /></label><label>Thailand end time<input name="endTime" type="time" required /></label><label>Timezone<select name="timezone" defaultValue="Asia/Bangkok"><option>Asia/Bangkok</option><option>Asia/Manila</option><option>Asia/Singapore</option></select></label><label>Duration<select name="duration" defaultValue="30"><option value="30">30 minutes</option><option value="60">60 minutes</option></select></label><label>Grade or age <span className="optional">optional</span><input name="grade" placeholder="10-11 years old" /></label></div><label>Conversation topics <span className="optional">separate with commas</span><input name="topics" required placeholder="Family, hobbies, weekend plans" /></label><label>Teacher notes <span className="optional">optional</span><textarea name="teacherNotes" rows={4} placeholder="Anything that would help the volunteer feel prepared?" /></label><label>Meeting URL <span className="optional">Google Meet or Zoom</span><input name="meetingUrl" type="url" placeholder="https://meet.google.com/..." /></label><button className="button" disabled={busy}>{busy ? 'Creating...' : 'Publish session'} <span>↗</span></button></form></section> }
+
+function SessionDetails() { const { sessionId } = useParams(); const [session, setSession] = useState<Session | null>(null); const [loading, setLoading] = useState(true); useEffect(() => { if (!sessionId) return; void getSession(sessionId).then((result) => { setSession(result); setLoading(false) }).catch(() => setLoading(false)) }, [sessionId]); if (loading) return <div className="loading-screen">Loading session details...</div>; return <section className="detail-page"><Link className="back-link" to="/dashboard">← Back to overview</Link>{session ? <><p className="eyebrow">{sessionStatusLabel[session.status]}</p><h1>{session.classroomName}</h1><div className="detail-panel"><p><strong>{session.date}</strong> at <strong>{session.startTime}</strong> ({session.timezone})</p><p>{session.durationMinutes} minutes · approximately {session.studentCount} students</p><h3>Conversation topics</h3><div className="topic-row">{session.topics.map((topic) => <span key={topic}>{topic}</span>)}</div>{session.teacherNotes && <><h3>Teacher notes</h3><p>{session.teacherNotes}</p></>}{session.meetingUrl && <a className="button" href={session.meetingUrl} target="_blank" rel="noreferrer">Open meeting room ↗</a>}</div></> : <EmptyState title="Session not found" text="This session may have been cancelled or is no longer available." />}</section> }
+function FeedbackPage() { const { sessionId } = useParams(); const { user, profile } = useAuth(); const [sent, setSent] = useState(false); async function submit(event: FormEvent<HTMLFormElement>) { event.preventDefault(); if (!user || !profile) return; const form = new FormData(event.currentTarget); await saveFeedback({ sessionId: sessionId ?? '', authorId: user.uid, authorRole: profile.role === 'school' ? 'school' : 'volunteer', rating: Number(form.get('rating')), wentWell: String(form.get('wentWell')), couldImprove: String(form.get('couldImprove')), technicalIssues: String(form.get('technicalIssues')) }); setSent(true) } return <section className="form-page"><p className="eyebrow">A two-minute reflection</p><h1>How did it feel?</h1>{sent ? <EmptyState title="Thank you for sharing" text="Your reflection helps us make the next conversation better." /> : <form className="long-form narrow-form" onSubmit={(event) => void submit(event)}><label>Overall rating<select name="rating" defaultValue="5"><option value="5">5 · Wonderful</option><option value="4">4 · Good</option><option value="3">3 · Okay</option><option value="2">2 · Difficult</option><option value="1">1 · Not a fit</option></select></label><label>What went well?<textarea name="wentWell" required rows={4} /></label><label>What could improve?<textarea name="couldImprove" required rows={4} /></label><label>Technical issues <span className="optional">optional</span><textarea name="technicalIssues" rows={3} /></label><button className="button">Send reflection <span>↗</span></button></form>}</section> }
 
 export default App

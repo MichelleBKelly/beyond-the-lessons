@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function user() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function role(value) { return signedIn() && user().role == value; }
+    function approvedVolunteer() { return role('volunteer') && user().approvalStatus == 'approved'; }
+    function approvedSchool() { return role('school') && user().approvalStatus == 'approved'; }
+
+    match /users/{userId} {
+      allow read: if signedIn() && (request.auth.uid == userId || role('admin'));
+      allow create: if signedIn() && request.auth.uid == userId;
+      allow update: if signedIn() && (request.auth.uid == userId || role('admin'));
+    }
+
+    match /sessions/{sessionId} {
+      allow read: if signedIn();
+      allow create: if approvedSchool() && request.resource.data.schoolId == request.auth.uid;
+      allow update: if role('admin')
+        || (approvedSchool() && resource.data.schoolId == request.auth.uid)
+        || (approvedVolunteer() && resource.data.status == 'OPEN'
+            && request.resource.data.status == 'CLAIMED'
+            && request.resource.data.volunteerId == request.auth.uid);
+      allow delete: if role('admin');
+    }
+
+    match /feedback/{feedbackId} {
+      allow read: if role('admin') || (signedIn() && resource.data.authorId == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update, delete: if role('admin');
+    }
+  }
+}
