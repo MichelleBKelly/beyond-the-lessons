@@ -1,76 +1,38 @@
-# Local Development
+# Run Locally
 
-The repository has two workspaces:
+Set `VITE_USE_FIREBASE_EMULATORS=true` in `frontend/.env.local` first.
 
-- `frontend/`: Vite, React, TypeScript, and the browser Firebase client.
-- `backend/`: Firebase project configuration, Firestore rules, Emulator Suite configuration, and Cloud Functions.
-
-## Prerequisites
-
-- Node.js 20 or newer
-- Java installed for the Firebase Firestore emulator
-- Firebase CLI: `npm install --global firebase-tools`
-
-## Configure Firebase
-
-1. Create a Firebase project and register a web app.
-2. Copy `frontend/.env.example` to `frontend/.env.local`.
-3. Fill in the `VITE_FIREBASE_*` values from Firebase Console.
-4. Set `VITE_USE_FIREBASE_EMULATORS=true` in `frontend/.env.local` when using the local Emulator Suite.
-5. Copy `backend/functions/.env.example` to `backend/functions/.env`.
-6. Add a Resend API key and a verified sender address when email notifications are needed. The emulator can run without these values; it will log that email delivery was skipped.
-
-## Run the frontend
+## Terminal 1: Firebase backend
 
 ```powershell
-cd frontend
-npm install
-npm run dev
-```
-
-The Vite development server normally runs at `http://localhost:5173`.
-
-## Run the Firebase backend locally
-
-In a second terminal:
-
-```powershell
-cd backend/functions
-npm install
-npm run build
+cd C:\Users\Miche\Documents\GitHub\beyond-the-lessons\backend\functions
+npm.cmd install
+npm.cmd run build
 cd ..
-firebase emulators:start --only auth,firestore,functions
+npx firebase-tools emulators:start --only auth,firestore,functions
 ```
 
-The Emulator UI is available at `http://localhost:4000`. The local services use the ports declared in [backend/firebase.json](../backend/firebase.json): Auth `9099`, Firestore `8080`, Functions `5001`, and Emulator UI `4000`.
-
-The frontend automatically connects Auth and Firestore to these emulators when `VITE_USE_FIREBASE_EMULATORS=true` and Vite is running in development mode.
-
-## Run checks
-
-Frontend:
+## Terminal 2: Frontend
 
 ```powershell
-cd frontend
-npm run build
-npm run lint
-npm run test
+cd C:\Users\Miche\Documents\GitHub\beyond-the-lessons\frontend
+npm.cmd install
+npm.cmd run dev
 ```
 
-Backend:
+Open the app at `http://localhost:5173`.
+
+Open the Firebase Emulator UI at `http://localhost:4000`.
+
+## Test checks
 
 ```powershell
-cd backend/functions
-npm run build
+cd C:\Users\Miche\Documents\GitHub\beyond-the-lessons\frontend
+npm.cmd run test
+npm.cmd run build
 ```
-
-## Deploy backend
 
 ```powershell
-cd backend
-firebase login
-firebase use YOUR_PROJECT_ID
-firebase deploy --only firestore:rules,functions
+cd C:\Users\Miche\Documents\GitHub\beyond-the-lessons\backend\functions
+npm.cmd run build
 ```
-
-Store `RESEND_API_KEY` with Firebase Secret Manager for deployed Functions. Do not commit `.env` files or email credentials.
