@@ -70,6 +70,11 @@ aside a:hover { color: var(--green); background: var(--sage); }
 .count { color: var(--muted); font-size: 12px; }
 .session-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 .session-list { display: grid; gap: 12px; }
+.approval-filters { display: flex; gap: 8px; margin: 34px 0 54px; border-bottom: 1px solid var(--line); }
+.filter-button { padding: 12px 16px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--muted); cursor: pointer; font-size: 12px; font-weight: 700; }
+.filter-button.active { border-bottom-color: var(--coral); color: var(--green); }
+.approval-group + .approval-group { margin-top: 60px; }
+.approval-group .section-heading { margin-bottom: 18px; }
 .session-card { display: grid; grid-template-columns: 78px 1fr auto; gap: 20px; align-items: center; padding: 21px; background: var(--paper); border: 1px solid var(--line); }
 .session-date { align-self: stretch; display: flex; flex-direction: column; justify-content: center; border-right: 1px solid var(--line); color: var(--green); }
 .session-date strong { font-family: 'Fraunces', serif; font-size: 22px; }
