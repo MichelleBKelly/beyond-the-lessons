@@ -12,7 +12,7 @@ import {
   where,
 } from 'firebase/firestore'
 import { db } from '../lib/firebase'
-import type { Feedback, Session, UserProfile } from '../types/domain'
+import type { ApprovalStatus, Feedback, Session, UserProfile } from '../types/domain'
 
 function toSession(id: string, data: Record<string, unknown>): Session {
   return { id, ...data } as Session
@@ -21,6 +21,15 @@ function toSession(id: string, data: Record<string, unknown>): Session {
 export async function getUserProfile(userId: string): Promise<UserProfile | null> {
   const snapshot = await getDoc(doc(db, 'users', userId))
   return snapshot.exists() ? ({ id: snapshot.id, ...snapshot.data() } as UserProfile) : null
+}
+
+export async function getUserProfiles(): Promise<UserProfile[]> {
+  const snapshot = await getDocs(collection(db, 'users'))
+  return snapshot.docs.map((item) => ({ id: item.id, ...item.data() } as UserProfile))
+}
+
+export async function updateApprovalStatus(userId: string, approvalStatus: ApprovalStatus) {
+  await setDoc(doc(db, 'users', userId), { approvalStatus }, { merge: true })
 }
 
 export async function getOpenSessions(): Promise<Session[]> {

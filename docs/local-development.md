@@ -24,6 +24,28 @@ Open the app at `http://localhost:5173`.
 
 Open the Firebase Emulator UI at `http://localhost:4000`.
 
+The local frontend uses the emulator project configured in `frontend/.env.local`.
+Emulator email delivery is skipped unless the Functions environment has a
+`RESEND_API_KEY`; successful signup and session creation can still be tested in
+the Firestore Emulator UI. The admin approval screen is available at
+`/admin/users` after signing in with a user whose `role` is `admin`.
+
+To test the complete workflow:
+
+1. Create a school and volunteer account at `/auth?mode=signup`.
+2. In Firestore, set both profiles' `approvalStatus` to `approved`.
+3. Sign in as the school and create an open session.
+4. Sign in as the volunteer and claim the session.
+5. To test the admin screen, set one profile's `role` to `admin`, sign in again,
+   and approve or reject pending applications at `/admin/users`.
+
+For production email delivery, configure the Functions secret and sender:
+
+```powershell
+firebase functions:secrets:set RESEND_API_KEY
+$env:FRONTEND_URL = "https://your-frontend.example.com"
+```
+
 ## Test checks
 
 ```powershell

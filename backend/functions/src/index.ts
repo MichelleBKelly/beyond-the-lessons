@@ -31,6 +31,7 @@ interface UserData {
 
 function eligibleVolunteer(session: SessionData, volunteer: UserData) {
   if (volunteer.role !== 'volunteer' || volunteer.approvalStatus !== 'approved') return false
+  if (!volunteer.availability?.length) return true
   const day = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: session.timezone }).format(new Date(`${session.date}T${session.startTime}:00`))
   return volunteer.availability?.some((window) => window.day.toLowerCase() === day.toLowerCase() && window.startTime <= session.startTime && window.endTime >= session.endTime) ?? false
 }
@@ -45,13 +46,17 @@ async function sendEmail(to: string, subject: string, html: string) {
   await resend.emails.send({ from: process.env.NOTIFICATION_FROM_EMAIL ?? 'Beyond the Lessons <notifications@example.org>', to, subject, html })
 }
 
+function appUrl(path: string) {
+  return `${process.env.FRONTEND_URL ?? 'http://localhost:5173'}${path}`
+}
+
 export const notifyEligibleVolunteers = onDocumentCreated({ document: 'sessions/{sessionId}', secrets: [resendApiKey] }, async (event) => {
   const session = event.data?.data() as SessionData | undefined
   if (!session || session.status !== 'OPEN') return
   const volunteers = await db.collection('users').where('role', '==', 'volunteer').where('approvalStatus', '==', 'approved').get()
   await Promise.all(volunteers.docs.map(async (volunteer) => {
     const data = volunteer.data() as UserData
-    if (data.email && eligibleVolunteer(session, data)) await sendEmail(data.email, 'A new classroom conversation is available', `<p>Hello ${data.displayName ?? 'volunteer'},</p><p>A new session for ${session.classroomName} is open. Sign in to view the details and claim it.</p>`)
+    if (data.email && eligibleVolunteer(session, data)) await sendEmail(data.email, 'A new classroom conversation is available', `<p>Hello ${data.displayName ?? 'volunteer'},</p><p>A new session for ${session.classroomName} is open on ${session.date} from ${session.startTime} to ${session.endTime} (${session.timezone}).</p><p><a href="${appUrl(`/sessions/${event.params.sessionId}`)}">Sign in to view the details and claim it</a> while it is available.</p>`)
   }))
 })
 

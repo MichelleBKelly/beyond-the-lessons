@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes, useNavigate, useParams } from 'react-router-dom'
 import { isFirebaseConfigured } from './lib/firebase'
 import { useAuth } from './context/AuthContext'
-import { claimSession, createSession, getOpenSessions, getSession, getSessionsForUser, saveFeedback } from './services/firestore'
+import { claimSession, createSession, getOpenSessions, getSession, getSessionsForUser, getUserProfiles, saveFeedback, updateApprovalStatus } from './services/firestore'
 import { logOut, resetPassword, signIn, signUp } from './services/auth'
 import type { Role, Session } from './types/domain'
 import { sessionStatusLabel } from './types/domain'
@@ -16,6 +16,7 @@ function App() {
         <Route path="/auth" element={<AuthPage />} />
         <Route element={<ProtectedLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/sessions/new" element={<SessionForm />} />
           <Route path="/sessions/:sessionId" element={<SessionDetails />} />
           <Route path="/feedback/:sessionId" element={<FeedbackPage />} />
@@ -36,7 +37,7 @@ function ProtectedLayout() {
   const { user, profile, loading } = useAuth()
   if (loading) return <div className="loading-screen">Loading your workspace...</div>
   if (!user) return <Navigate to="/auth?mode=login" replace />
-  return <div className="app-shell"><header className="app-header"><Link className="brand" to="/dashboard"><span className="brand-mark">B</span><span>Beyond the Lessons</span></Link><div className="header-user"><span>{profile?.displayName ?? user.email}</span><button className="button ghost" onClick={() => void logOut()}>Log out</button></div></header><div className="app-content"><aside><Link to="/dashboard">Overview</Link>{profile?.role === 'school' && <Link to="/sessions/new">Create session</Link>}<Link to="/dashboard#sessions">My sessions</Link><Link to="/dashboard#hours">Hours & feedback</Link></aside><main className="workspace"><Routes><Route path="/dashboard" element={<Dashboard />} /><Route path="/sessions/new" element={<SessionForm />} /><Route path="/sessions/:sessionId" element={<SessionDetails />} /><Route path="/feedback/:sessionId" element={<FeedbackPage />} /></Routes></main></div></div>
+  return <div className="app-shell"><header className="app-header"><Link className="brand" to="/dashboard"><span className="brand-mark">B</span><span>Beyond the Lessons</span></Link><div className="header-user"><span>{profile?.displayName ?? user.email}</span><button className="button ghost" onClick={() => void logOut()}>Log out</button></div></header><div className="app-content"><aside><Link to="/dashboard">Overview</Link>{profile?.role === 'admin' && <Link to="/admin/users">Review applications</Link>}{profile?.role === 'school' && <Link to="/sessions/new">Create session</Link>}<Link to="/dashboard#sessions">My sessions</Link><Link to="/dashboard#hours">Hours & feedback</Link></aside><main className="workspace"><Routes><Route path="/dashboard" element={<Dashboard />} /><Route path="/admin/users" element={<AdminUsers />} /><Route path="/sessions/new" element={<SessionForm />} /><Route path="/sessions/:sessionId" element={<SessionDetails />} /><Route path="/feedback/:sessionId" element={<FeedbackPage />} /></Routes></main></div></div>
 }
 
 function AuthPage() {
@@ -52,6 +53,43 @@ function Dashboard() {
   async function claim(id: string) { if (!user) return; try { await claimSession(id, user.uid, profile?.displayName ?? user.email ?? 'Volunteer'); setOpenSessions((current) => current.filter((session) => session.id !== id)); setMessage('Session claimed. The school will be notified.'); } catch (error) { setMessage(error instanceof Error ? error.message : 'Unable to claim this session.') } }
   if (loading) return <div className="loading-screen">Loading your workspace...</div>
   return <><div className="workspace-heading"><div><p className="eyebrow">{profile?.role === 'school' ? 'School workspace' : profile?.role === 'admin' ? 'Admin workspace' : 'Volunteer workspace'}</p><h1>{greeting}</h1><p className="muted">{approved ? 'Thank you for making space for connection.' : 'Your application is being reviewed. We will be in touch soon.'}</p></div>{profile?.role === 'school' && approved && <Link className="button" to="/sessions/new">Create a session <span>↗</span></Link>}</div>{message && <div className="notice">{message}</div>}{profile?.role === 'volunteer' && approved && <section className="dashboard-section"><div className="section-heading"><div><p className="eyebrow">Open invitations</p><h2>Find your next classroom.</h2></div><span className="count">{openSessions.length} available</span></div>{openSessions.length ? <div className="session-grid">{openSessions.map((session) => <SessionCard key={session.id} session={session} action={<button className="button small" onClick={() => void claim(session.id)}>Claim session</button>} />)}</div> : <EmptyState title="No open sessions yet" text="New opportunities will appear here when a school creates a session that fits your availability." />}</section>}<section id="sessions" className="dashboard-section"><div className="section-heading"><div><p className="eyebrow">Your calendar</p><h2>{profile?.role === 'school' ? 'Classroom sessions' : 'Your sessions'}</h2></div></div>{sessions.length ? <div className="session-list">{sessions.map((session) => <SessionCard key={session.id} session={session} />)}</div> : <EmptyState title="Your first session is waiting" text={approved ? 'When a session is claimed or created, it will show up here.' : 'Once your application is approved, this is where your sessions will live.'} />}</section><section id="hours" className="stats-row"><div><span className="stat-value">{sessions.filter((session) => session.status === 'COMPLETED').reduce((total, session) => total + (session.durationMinutes === 60 ? 1 : 0.5), 0).toFixed(1)}</span><span className="stat-label">Volunteer hours</span></div><div><span className="stat-value">{sessions.filter((session) => session.status === 'COMPLETED').length}</span><span className="stat-label">Conversations completed</span></div><div><span className="stat-value">{sessions.filter((session) => session.status === 'CONFIRMED' || session.status === 'CLAIMED').length}</span><span className="stat-label">Coming up</span></div></section></>
+}
+
+function AdminUsers() {
+  const { profile } = useAuth()
+  const [users, setUsers] = useState<Awaited<ReturnType<typeof getUserProfiles>>>([])
+  const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [updating, setUpdating] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (profile?.role !== 'admin') return
+    void getUserProfiles().then((result) => {
+      setUsers(result.sort((left, right) => Number(right.approvalStatus === 'pending') - Number(left.approvalStatus === 'pending')))
+      setLoading(false)
+    }).catch(() => {
+      setMessage('We could not load applications right now.')
+      setLoading(false)
+    })
+  }, [profile])
+
+  if (profile?.role !== 'admin') return <Navigate to="/dashboard" replace />
+  if (loading) return <div className="loading-screen">Loading applications...</div>
+
+  async function setStatus(userId: string, approvalStatus: 'approved' | 'rejected') {
+    setUpdating(userId)
+    setMessage('')
+    try {
+      await updateApprovalStatus(userId, approvalStatus)
+      setUsers((current) => current.map((user) => user.id === userId ? { ...user, approvalStatus } : user))
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Unable to update this application.')
+    } finally {
+      setUpdating(null)
+    }
+  }
+
+  return <section className="form-page"><p className="eyebrow">Admin workspace</p><h1>Review applications.</h1><p className="form-intro">Approve people who are ready to take part, or reject an application that needs more information.</p>{message && <div className="notice error">{message}</div>}<div className="session-list">{users.map((user) => <article className="session-card" key={user.id}><div className="session-info"><span className={`status status-${user.approvalStatus}`}>{user.approvalStatus}</span><h3>{user.displayName || 'Unnamed applicant'}</h3><p>{user.email} · {user.role}</p></div><div className="session-action">{user.approvalStatus === 'pending' ? <><button className="button small" disabled={updating === user.id} onClick={() => void setStatus(user.id, 'approved')}>Approve</button><button className="button small ghost" disabled={updating === user.id} onClick={() => void setStatus(user.id, 'rejected')}>Reject</button></> : <button className="button small ghost" disabled={updating === user.id} onClick={() => void setStatus(user.id, user.approvalStatus === 'approved' ? 'rejected' : 'approved')}>{user.approvalStatus === 'approved' ? 'Reject' : 'Approve'}</button>}</div></article>)}</div>{users.length === 0 && <EmptyState title="No applications yet" text="New volunteer and school applications will appear here." />}</section>
 }
 
 function SessionCard({ session, action }: { session: Session; action?: ReactNode }) { return <article className="session-card"><div className="session-date"><strong>{new Date(`${session.date}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</strong><span>{session.startTime}</span></div><div className="session-info"><span className={`status status-${session.status.toLowerCase()}`}>{sessionStatusLabel[session.status]}</span><h3>{session.classroomName}</h3><p>{session.schoolName ?? 'Classroom session'} · {session.durationMinutes} minutes</p><div className="topic-row">{session.topics.slice(0, 3).map((topic) => <span key={topic}>{topic}</span>)}</div></div><div className="session-action">{action ?? <Link className="text-link" to={`/sessions/${session.id}`}>View details →</Link>}</div></article> }
