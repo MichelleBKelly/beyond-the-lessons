@@ -46,6 +46,47 @@ firebase functions:secrets:set RESEND_API_KEY
 $env:FRONTEND_URL = "https://your-frontend.example.com"
 ```
 
+## Promotion order
+
+Keep local development and production separate. The checked-in examples are
+templates only; never commit `.env.local` or Functions `.env` files.
+
+### 1. Local development
+
+Use `frontend/.env.local` with `VITE_USE_FIREBASE_EMULATORS=true` and the local
+demo project ID. Start the emulators and frontend, then test signup, approval,
+session creation, claiming, and feedback against `localhost`.
+
+Run these checks before sharing anything:
+
+```powershell
+npm.cmd --prefix frontend run test
+npm.cmd --prefix frontend run lint
+npm.cmd --prefix frontend run build
+npm.cmd --prefix backend/functions run build
+```
+
+### 2. Private staging
+
+Create a separate Firebase project for staging. Add its web-app values to the
+hosting provider as environment variables with
+`VITE_USE_FIREBASE_EMULATORS=false`. Deploy Firestore rules and Functions to
+staging, create one admin, and test the complete workflow with test accounts.
+Use a preview deployment or password protection for the frontend so it is not
+publicly discoverable.
+
+### 3. Production
+
+Only after staging passes, create or select the production Firebase project.
+Configure its Auth authorized domains, Firestore rules, Functions secrets, and
+Resend sender domain. Add the production `VITE_FIREBASE_*` variables to the
+hosting provider, deploy the frontend, then verify signup and email delivery
+with controlled test accounts.
+
+Keep separate admin accounts and data for local, staging, and production. Do
+not point local development at production, and do not use the demo project ID
+for a public deployment.
+
 ## Test checks
 
 ```powershell
