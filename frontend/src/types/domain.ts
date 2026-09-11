@@ -20,6 +20,11 @@ export interface UserProfile {
   role: Role
   approvalStatus: ApprovalStatus
   timezone: string
+  availability?: AvailabilityWindow[]
+  schoolName?: string
+  schoolSize?: string
+  studentAgeRange?: string
+  schoolLocation?: string
   createdAt?: string
 }
 

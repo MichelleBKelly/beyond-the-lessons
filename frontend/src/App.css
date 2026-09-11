@@ -45,7 +45,12 @@ footer { display: flex; justify-content: space-between; padding: 25px 8vw; borde
 .auth-card > .muted { margin-top: 13px; }
 form { margin-top: 30px; }
 label { display: block; color: var(--ink); font-size: 12px; font-weight: 700; }
-label + label, label + .button { margin-top: 18px; }
+form > label + label, form > label + fieldset, fieldset + label, label + .button { margin-top: 18px; }
+fieldset { min-width: 0; margin: 22px 0 0; padding: 18px; border: 1px solid var(--line); background: #fbfaf5; }
+legend { padding: 0 7px; color: var(--green); font-size: 12px; font-weight: 700; }
+fieldset > label { margin-top: 2px; }
+fieldset .form-grid { margin-top: 18px; }
+fieldset .form-grid label + label { margin-top: 0; }
 input, select, textarea { display: block; width: 100%; margin-top: 7px; padding: 13px 14px; border: 1px solid var(--line); border-radius: 3px; outline: 0; background: white; color: var(--ink); }
 input:focus, select:focus, textarea:focus { border-color: var(--green); box-shadow: 0 0 0 3px #35665e1c; }
 .notice { margin-top: 20px; padding: 13px 15px; background: #edf4e9; color: var(--green); font-size: 13px; line-height: 1.4; }
@@ -106,5 +111,9 @@ aside a:hover { color: var(--green); background: var(--sage); }
 .detail-panel { margin-top: 38px; padding: 30px; background: var(--paper); border: 1px solid var(--line); color: var(--muted); line-height: 1.7; }
 .detail-panel h3 { margin-top: 25px; color: var(--ink); font-size: 22px; }
 .detail-panel .button { margin-top: 28px; }
+.profile-settings .detail-panel { max-width: 700px; }
+.profile-settings .detail-panel > label + label,
+.profile-settings fieldset > label + label { margin-top: 18px; }
+.profile-settings .detail-panel > .button { margin-top: 24px; }
 @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-@media (max-width: 760px) { .site-header, .app-header { padding: 20px; } nav a:first-child { display: none; } .hero-section, .steps { display: block; padding: 68px 25px; } .hero-art { min-height: 360px; margin-top: 35px; } .art-card { width: 250px; padding: 25px; } .art-card-front { right: 0; top: 135px; } .art-card-back { left: 0; } .trust-strip { justify-content: flex-start; overflow: hidden; white-space: nowrap; } .steps h2 { font-size: 40px; } .step-grid { display: grid; grid-template-columns: 1fr; gap: 35px; margin-top: 50px; } footer { padding: 22px 25px; } .app-content { display: block; } aside { display: flex; overflow-x: auto; padding: 10px; border-right: 0; border-bottom: 1px solid var(--line); } aside a { white-space: nowrap; } .workspace { padding: 45px 20px 70px; } .workspace-heading { display: block; } .workspace-heading .button { margin-top: 24px; } .session-grid { grid-template-columns: 1fr; } .session-card { grid-template-columns: 65px 1fr; } .session-action { grid-column: 2; } .stats-row { grid-template-columns: 1fr; } .auth-card { padding: 32px 25px; } }
+@media (max-width: 760px) { .site-header, .app-header { padding: 20px; } nav a:first-child { display: none; } .hero-section, .steps { display: block; padding: 68px 25px; } .hero-art { min-height: 360px; margin-top: 35px; } .art-card { width: 250px; padding: 25px; } .art-card-front { right: 0; top: 135px; } .art-card-back { left: 0; } .trust-strip { justify-content: flex-start; overflow: hidden; white-space: nowrap; } .steps h2 { font-size: 40px; } .step-grid { display: grid; grid-template-columns: 1fr; gap: 35px; margin-top: 50px; } footer { padding: 22px 25px; } .app-content { display: block; } aside { display: flex; overflow-x: auto; padding: 10px; border-right: 0; border-bottom: 1px solid var(--line); } aside a { white-space: nowrap; } .workspace { padding: 45px 20px 70px; } .workspace-heading { display: block; } .workspace-heading .button { margin-top: 24px; } .session-grid { grid-template-columns: 1fr; } .session-card { grid-template-columns: 65px 1fr; } .session-action { grid-column: 2; } .stats-row { grid-template-columns: 1fr; } .auth-card { padding: 32px 25px; } fieldset .form-grid { grid-template-columns: 1fr; gap: 14px; } fieldset .form-grid label + label { margin-top: 0; } }

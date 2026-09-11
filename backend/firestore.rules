@@ -28,7 +28,7 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['approvalStatus'])
         || (signedIn()
           && request.auth.uid == userId
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'timezone', 'availability']));
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'timezone', 'availability', 'schoolName', 'schoolSize', 'studentAgeRange', 'schoolLocation']));
     }
 
     match /sessions/{sessionId} {

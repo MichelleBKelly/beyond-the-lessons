@@ -16,7 +16,7 @@ export function getAuthErrorMessage(error: unknown) {
   return authErrorMessage(code)
 }
 
-export async function signUp(email: string, password: string, displayName: string, role: Role, availability?: { day: string; startTime: string; endTime: string }[]) {
+export async function signUp(email: string, password: string, displayName: string, role: Role, profileDetails?: { schoolName?: string; schoolSize?: string; studentAgeRange?: string; schoolLocation?: string }) {
   const credential = await createUserWithEmailAndPassword(auth, email, password)
   await updateProfile(credential.user, { displayName })
   try {
@@ -26,7 +26,7 @@ export async function signUp(email: string, password: string, displayName: strin
       role,
       approvalStatus: role === 'admin' ? 'approved' : 'pending',
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-      ...(availability?.length ? { availability } : {}),
+      ...profileDetails,
       createdAt: serverTimestamp(),
     })
   } catch (error) {

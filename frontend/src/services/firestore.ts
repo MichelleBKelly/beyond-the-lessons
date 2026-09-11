@@ -32,6 +32,10 @@ export async function updateApprovalStatus(userId: string, approvalStatus: Appro
   await setDoc(doc(db, 'users', userId), { approvalStatus }, { merge: true })
 }
 
+export async function updateOwnProfile(userId: string, profile: { displayName: string; timezone: string; availability?: { day: string; startTime: string; endTime: string }[]; schoolName?: string; schoolSize?: string; studentAgeRange?: string; schoolLocation?: string }) {
+  await setDoc(doc(db, 'users', userId), profile, { merge: true })
+}
+
 export async function getOpenSessions(): Promise<Session[]> {
   const snapshot = await getDocs(query(
     collection(db, 'sessions'),
