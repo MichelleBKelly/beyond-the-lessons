@@ -32,7 +32,7 @@ h1 { color: var(--ink); font-size: clamp(48px, 6vw, 82px); line-height: .98; let
 .steps { display: grid; grid-template-columns: .8fr 1.2fr; gap: 8vw; max-width: 1240px; margin: auto; padding: 110px 8vw; }
 .steps h2 { font-size: 48px; line-height: 1.02; }
 .step-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
-.step { border-top: 2px solid var(--green); padding-top: 16px; }
+.step { border-top: 1.5px solid var(--line); padding-top: 16px; }
 .step-number { color: var(--coral); font-size: 12px; font-weight: 700; }
 .step h3 { margin-top: 36px; font-size: 24px; line-height: 1.05; }
 .step p { margin-top: 14px; color: var(--muted); font-size: 14px; line-height: 1.5; }
