@@ -4,30 +4,70 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function user() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
     function role(value) { return signedIn() && user().role == value; }
+    function admin() { return role('admin') && user().approvalStatus == 'approved'; }
     function approvedVolunteer() { return role('volunteer') && user().approvalStatus == 'approved'; }
     function approvedSchool() { return role('school') && user().approvalStatus == 'approved'; }
+    function validTransition(from, to) {
+      return (from == 'DRAFT' && to in ['OPEN', 'CANCELLED'])
+        || (from == 'OPEN' && to in ['CLAIMED', 'CANCELLED', 'NO_VOLUNTEER'])
+        || (from == 'CLAIMED' && to in ['CONFIRMED', 'OPEN', 'CANCELLED', 'NO_SHOW'])
+        || (from == 'CONFIRMED' && to in ['COMPLETED', 'CANCELLED', 'NO_SHOW', 'DISPUTED'])
+        || (from == 'NO_VOLUNTEER' && to in ['OPEN', 'CANCELLED'])
+        || (from == 'NO_SHOW' && to in ['DISPUTED', 'OPEN'])
+        || (from == 'DISPUTED' && to in ['COMPLETED', 'CANCELLED']);
+    }
 
     match /users/{userId} {
-      allow read: if signedIn() && (request.auth.uid == userId || role('admin'));
-      allow create: if signedIn() && request.auth.uid == userId;
-      allow update: if signedIn() && (request.auth.uid == userId || role('admin'));
+      allow read: if signedIn() && (request.auth.uid == userId || admin());
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.role in ['volunteer', 'school']
+        && request.resource.data.approvalStatus == 'pending'
+        && request.resource.data.email == request.auth.token.email;
+      allow update: if admin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['approvalStatus'])
+        || (signedIn()
+          && request.auth.uid == userId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'timezone', 'availability']));
     }
 
     match /sessions/{sessionId} {
-      allow read: if signedIn();
-      allow create: if approvedSchool() && request.resource.data.schoolId == request.auth.uid;
-      allow update: if role('admin')
-        || (approvedSchool() && resource.data.schoolId == request.auth.uid)
+      allow read: if admin()
+        || (signedIn() && resource.data.schoolId == request.auth.uid)
+        || (approvedVolunteer() && resource.data.status == 'OPEN');
+      allow create: if approvedSchool()
+        && request.resource.data.schoolId == request.auth.uid
+        && request.resource.data.status == 'OPEN'
+        && request.resource.data.durationMinutes in [30, 60];
+      allow update: if admin()
+        || (approvedSchool()
+          && resource.data.schoolId == request.auth.uid
+          && request.resource.data.schoolId == resource.data.schoolId
+          && validTransition(resource.data.status, request.resource.data.status)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['classroomName', 'date', 'startTime', 'endTime', 'timezone', 'durationMinutes', 'studentCount', 'topics', 'teacherNotes', 'meetingUrl', 'grade', 'englishLevel', 'status', 'updatedAt']))
         || (approvedVolunteer() && resource.data.status == 'OPEN'
             && request.resource.data.status == 'CLAIMED'
-            && request.resource.data.volunteerId == request.auth.uid);
-      allow delete: if role('admin');
+            && request.resource.data.volunteerId == request.auth.uid
+            && request.resource.data.schoolId == resource.data.schoolId
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['volunteerId', 'volunteerName', 'status', 'updatedAt']));
+      allow delete: if admin();
     }
 
     match /feedback/{feedbackId} {
-      allow read: if role('admin') || (signedIn() && resource.data.authorId == request.auth.uid);
-      allow create: if signedIn() && request.resource.data.authorId == request.auth.uid;
-      allow update, delete: if role('admin');
+      allow read: if admin() || (signedIn() && resource.data.authorId == request.auth.uid);
+      allow create: if signedIn()
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && exists(/databases/$(database)/documents/sessions/$(request.resource.data.sessionId))
+        && get(/databases/$(database)/documents/sessions/$(request.resource.data.sessionId)).data.status == 'COMPLETED'
+        && (
+          (get(/databases/$(database)/documents/sessions/$(request.resource.data.sessionId)).data.volunteerId == request.auth.uid
+            && request.resource.data.authorRole == 'volunteer')
+          || (get(/databases/$(database)/documents/sessions/$(request.resource.data.sessionId)).data.schoolId == request.auth.uid
+            && request.resource.data.authorRole == 'school')
+        );
+      allow update, delete: if admin();
     }
   }
 }

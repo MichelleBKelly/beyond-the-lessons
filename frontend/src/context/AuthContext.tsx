@@ -38,6 +38,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void loadProfileWithRetry(nextUser).then((nextProfile) => {
       setProfile(nextProfile)
       setLoading(false)
+    }).catch(() => {
+      setProfile(null)
+      setLoading(false)
     })
   }), [])
 

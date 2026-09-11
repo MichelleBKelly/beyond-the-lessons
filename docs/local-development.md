@@ -9,7 +9,7 @@ cd C:\Users\Miche\Documents\GitHub\beyond-the-lessons\backend\functions
 npm.cmd install
 npm.cmd run build
 cd ..
-npx firebase-tools emulators:start --only auth,firestore,functions
+npx firebase-tools emulators:start --project demo-no-project --only auth,firestore,functions
 ```
 
 ## Terminal 2: Frontend

@@ -1,5 +1,6 @@
 import {
   createUserWithEmailAndPassword,
+  deleteUser,
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signOut,
@@ -7,24 +8,15 @@ import {
 } from 'firebase/auth'
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore'
 import { auth, db } from '../lib/firebase'
+import { authErrorMessage } from '../domain/authErrors'
 import type { Role } from '../types/domain'
 
 export function getAuthErrorMessage(error: unknown) {
   const code = error instanceof Error && 'code' in error ? String(error.code) : ''
-  const messages: Record<string, string> = {
-    'auth/wrong-password': 'The email or password is incorrect.',
-    'auth/invalid-credential': 'The email or password is incorrect.',
-    'auth/user-not-found': 'The email or password is incorrect.',
-    'auth/email-already-in-use': 'An account already exists with this email address.',
-    'auth/weak-password': 'Choose a stronger password with at least 6 characters.',
-    'auth/invalid-email': 'Enter a valid email address.',
-    'auth/too-many-requests': 'Too many attempts. Please wait a moment and try again.',
-    'auth/network-request-failed': 'We could not connect. Check that the Firebase services are running.',
-  }
-  return messages[code] ?? 'We could not complete that request. Please try again.'
+  return authErrorMessage(code)
 }
 
-export async function signUp(email: string, password: string, displayName: string, role: Role) {
+export async function signUp(email: string, password: string, displayName: string, role: Role, availability?: { day: string; startTime: string; endTime: string }[]) {
   const credential = await createUserWithEmailAndPassword(auth, email, password)
   await updateProfile(credential.user, { displayName })
   try {
@@ -34,6 +26,7 @@ export async function signUp(email: string, password: string, displayName: strin
       role,
       approvalStatus: role === 'admin' ? 'approved' : 'pending',
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      ...(availability?.length ? { availability } : {}),
       createdAt: serverTimestamp(),
     })
   } catch (error) {
@@ -44,6 +37,7 @@ export async function signUp(email: string, password: string, displayName: strin
       projectId: db.app.options.projectId,
       userId: credential.user.uid,
     })
+    await deleteUser(credential.user).catch(() => undefined)
     throw new Error(`Account created, but the Firestore profile could not be saved (${code}). Check the browser console and Firebase rules.`)
   }
   return credential.user

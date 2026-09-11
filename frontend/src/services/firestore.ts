@@ -6,12 +6,12 @@ import {
   limit,
   orderBy,
   query,
-  runTransaction,
   serverTimestamp,
   setDoc,
   where,
 } from 'firebase/firestore'
-import { db } from '../lib/firebase'
+import { httpsCallable } from 'firebase/functions'
+import { db, functions } from '../lib/firebase'
 import type { ApprovalStatus, Feedback, Session, UserProfile } from '../types/domain'
 
 function toSession(id: string, data: Record<string, unknown>): Session {
@@ -53,6 +53,11 @@ export async function getSessionsForUser(userId: string, role: 'volunteer' | 'sc
   return snapshot.docs.map((item) => toSession(item.id, item.data()))
 }
 
+export async function getAllSessions(): Promise<Session[]> {
+  const snapshot = await getDocs(query(collection(db, 'sessions'), orderBy('date', 'asc'), limit(200)))
+  return snapshot.docs.map((item) => toSession(item.id, item.data()))
+}
+
 export async function createSession(session: Omit<Session, 'id' | 'createdAt' | 'updatedAt'>) {
   const reference = doc(collection(db, 'sessions'))
   await setDoc(reference, { ...session, createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
@@ -60,22 +65,16 @@ export async function createSession(session: Omit<Session, 'id' | 'createdAt' | 
 }
 
 export async function claimSession(sessionId: string, volunteerId: string, volunteerName: string) {
-  await runTransaction(db, async (transaction) => {
-    const reference = doc(db, 'sessions', sessionId)
-    const snapshot = await transaction.get(reference)
-    if (!snapshot.exists() || snapshot.data().status !== 'OPEN') {
-      throw new Error('This session has already been claimed or is no longer available.')
-    }
-    transaction.update(reference, {
-      volunteerId,
-      volunteerName,
-      status: 'CLAIMED',
-      updatedAt: serverTimestamp(),
-    })
-  })
+  void volunteerId
+  void volunteerName
+  await httpsCallable(functions, 'claimSession')({ sessionId })
 }
 
 export async function saveFeedback(feedback: Feedback) {
   const reference = doc(collection(db, 'feedback'))
   await setDoc(reference, { ...feedback, id: reference.id, createdAt: serverTimestamp() })
+}
+
+export async function updateSessionStatus(sessionId: string, status: Session['status']) {
+  await setDoc(doc(db, 'sessions', sessionId), { status, updatedAt: serverTimestamp() }, { merge: true })
 }
