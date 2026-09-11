@@ -53,20 +53,6 @@ export function Landing() {
         </div>
       </section>
 
-      <section className="trust-strip">
-        <span>Built for real classrooms</span>
-        <span>✦</span>
-        <span>Simple. Human. Remote.</span>
-        <span>✦</span>
-        <a
-          href="https://careconnectionthailand.org/"
-          target="_blank"
-          rel="noreferrer"
-        >
-          In collaboration with Care Connection Thailand Foundation ↗
-        </a>
-      </section>
-
       <section id="how-it-works" className="steps">
         <div>
           <p className="eyebrow">A small step, a wider world</p>
@@ -97,7 +83,13 @@ export function Landing() {
 
       <footer>
         <span>© 2026 Beyond the Lessons</span>
-        <span>For classrooms with curiosity.</span>
+        <a
+          href="https://careconnectionthailand.org/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          In collaboration with Care Connection Thailand Foundation ↗
+        </a>
       </footer>
     </main>
   );
