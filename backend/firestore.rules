@@ -26,9 +26,7 @@ service cloud.firestore {
         && request.resource.data.email == request.auth.token.email;
       allow update: if admin()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['approvalStatus'])
-        || (signedIn()
-          && request.auth.uid == userId
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['displayName', 'timezone', 'availability', 'schoolName', 'schoolSize', 'studentAgeRange', 'schoolLocation']));
+        || false;
     }
 
     match /sessions/{sessionId} {

@@ -56,6 +56,29 @@ nav a,
   text-decoration: none;
   font-weight: 600;
 }
+.language-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+}
+.language-option {
+  border: 0;
+  background: transparent;
+  padding: 6px 10px;
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+}
+.language-option.active {
+  background: var(--green);
+  color: white;
+}
 .button {
   display: inline-flex;
   justify-content: center;
@@ -286,32 +309,8 @@ label {
   font-weight: 700;
 }
 form > label + label,
-form > label + fieldset,
-fieldset + label,
 label + .button {
   margin-top: 18px;
-}
-fieldset {
-  min-width: 0;
-  margin: 22px 0 0;
-  padding: 18px;
-  border: 1px solid var(--line);
-  background: #fbfaf5;
-}
-legend {
-  padding: 0 7px;
-  color: var(--green);
-  font-size: 12px;
-  font-weight: 700;
-}
-fieldset > label {
-  margin-top: 2px;
-}
-fieldset .form-grid {
-  margin-top: 18px;
-}
-fieldset .form-grid label + label {
-  margin-top: 0;
 }
 input,
 select,
@@ -627,16 +626,6 @@ aside a:hover {
 .detail-panel .button {
   margin-top: 28px;
 }
-.profile-settings .detail-panel {
-  max-width: 700px;
-}
-.profile-settings .detail-panel > label + label,
-.profile-settings fieldset > label + label {
-  margin-top: 18px;
-}
-.profile-settings .detail-panel > .button {
-  margin-top: 24px;
-}
 @keyframes rise {
   from {
     opacity: 0;
@@ -723,12 +712,5 @@ aside a:hover {
   }
   .auth-card {
     padding: 32px 25px;
-  }
-  fieldset .form-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-  fieldset .form-grid label + label {
-    margin-top: 0;
   }
 }

@@ -24,11 +24,12 @@ Open the app at `http://localhost:5173`.
 
 Open the Firebase Emulator UI at `http://localhost:4000`.
 
-The local frontend uses the emulator project configured in `frontend/.env.local`.
-Emulator email delivery is skipped unless the Functions environment has a
-`RESEND_API_KEY`; successful signup and session creation can still be tested in
-the Firestore Emulator UI. The admin approval screen is available at
-`/admin/users` after signing in with a user whose `role` is `admin`.
+The local frontend uses the emulator project configured in `frontend/.env.local`:
+`VITE_FIREBASE_PROJECT_ID=demo-no-project`. Emulator email delivery is skipped
+unless the Functions environment has a `RESEND_API_KEY`; successful signup and
+session creation can still be tested in the Firestore Emulator UI. The admin
+approval screen is available at `/admin/users` after signing in with a user
+whose `role` is `admin`.
 
 To test the complete workflow:
 
@@ -54,8 +55,9 @@ templates only; never commit `.env.local` or Functions `.env` files.
 ### 1. Local development
 
 Use `frontend/.env.local` with `VITE_USE_FIREBASE_EMULATORS=true` and the local
-demo project ID. Start the emulators and frontend, then test signup, approval,
-session creation, claiming, and feedback against `localhost`.
+emulator project ID `demo-no-project`. Start the emulators and frontend, then
+test signup, approval, session creation, claiming, and feedback against
+`localhost`.
 
 Run these checks before sharing anything:
 

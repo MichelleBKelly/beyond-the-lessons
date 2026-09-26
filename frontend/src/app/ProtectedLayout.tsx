@@ -1,4 +1,5 @@
 import { Link, Navigate, Route, Routes } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../context/AuthContext";
 import { logOut } from "../services/auth";
 import { AdminUsers } from "../features/admin/AdminUsers";
@@ -6,37 +7,40 @@ import { Dashboard } from "../features/dashboard/Dashboard";
 import { SessionDetails } from "../features/sessions/SessionDetails";
 import { SessionForm } from "../features/sessions/SessionForm";
 import { FeedbackPage } from "../features/feedback/FeedbackPage";
+import { LanguageToggle } from "../i18n/LanguageToggle";
 
 export function ProtectedLayout() {
+  const { t } = useTranslation();
   const { user, profile, loading } = useAuth();
   if (loading)
-    return <div className="loading-screen">Loading your workspace...</div>;
+    return <div className="loading-screen">{t("common.loadingWorkspace")}</div>;
   if (!user) return <Navigate to="/auth?mode=login" replace />;
   return (
     <div className="app-shell">
       <header className="app-header">
         <Link className="brand" to="/dashboard">
           <span className="brand-mark">B</span>
-          <span>Beyond the Lessons</span>
+          <span>{t("app.brand")}</span>
         </Link>
         <div className="header-user">
+          <LanguageToggle />
           <span>{profile?.displayName ?? user.email}</span>
           <button className="button ghost" onClick={() => void logOut()}>
-            Log out
+            {t("nav.logOut")}
           </button>
         </div>
       </header>
       <div className="app-content">
         <aside>
-          <Link to="/dashboard">Overview</Link>
+          <Link to="/dashboard">{t("nav.overview")}</Link>
           {profile?.role === "admin" && (
-            <Link to="/admin/users">Review applications</Link>
+            <Link to="/admin/users">{t("nav.reviewApplications")}</Link>
           )}
           {profile?.role === "school" && (
-            <Link to="/sessions/new">Create session</Link>
+            <Link to="/sessions/new">{t("nav.createSession")}</Link>
           )}
-          <Link to="/dashboard#sessions">My sessions</Link>
-          <Link to="/dashboard#hours">Hours & feedback</Link>
+          <Link to="/dashboard#sessions">{t("nav.mySessions")}</Link>
+          <Link to="/dashboard#hours">{t("nav.hoursAndFeedback")}</Link>
         </aside>
         <main className="workspace">
           <Routes>

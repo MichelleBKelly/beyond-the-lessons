@@ -1,13 +1,16 @@
+import i18next from "../i18n";
+
 export function authErrorMessage(code: string) {
   const messages: Record<string, string> = {
-    'auth/wrong-password': 'The email or password is incorrect.',
-    'auth/invalid-credential': 'The email or password is incorrect.',
-    'auth/user-not-found': 'The email or password is incorrect.',
-    'auth/email-already-in-use': 'An account already exists with this email address.',
-    'auth/weak-password': 'Choose a stronger password with at least 6 characters.',
-    'auth/invalid-email': 'Enter a valid email address.',
-    'auth/too-many-requests': 'Too many attempts. Please wait a moment and try again.',
-    'auth/network-request-failed': 'We could not connect. Check that the Firebase services are running.',
-  }
-  return messages[code] ?? 'We could not complete that request. Please try again.'
+    "auth/wrong-password": i18next.t("errors.wrongPassword"),
+    "auth/invalid-credential": i18next.t("errors.wrongPassword"),
+    "auth/user-not-found": i18next.t("errors.wrongPassword"),
+    "auth/email-already-in-use": i18next.t("errors.emailInUse"),
+    "auth/weak-password": i18next.t("errors.weakPassword"),
+    "auth/invalid-email": i18next.t("errors.invalidEmail"),
+    "auth/too-many-requests": i18next.t("errors.tooManyRequests"),
+    "auth/network-request-failed": i18next.t("errors.networkError"),
+  };
+
+  return messages[code] ?? i18next.t("errors.generic");
 }
