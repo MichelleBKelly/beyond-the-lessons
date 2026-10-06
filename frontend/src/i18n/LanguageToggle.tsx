@@ -11,7 +11,7 @@ export function LanguageToggle() {
   const currentLanguage = i18n.language === "th" ? "th" : "en";
 
   return (
-    <div className="language-toggle" aria-label="Language selection">
+    <div className="language-toggle" aria-label={t("language.selection")}>
       {languageOptions.map((option) => (
         <button
           key={option.code}

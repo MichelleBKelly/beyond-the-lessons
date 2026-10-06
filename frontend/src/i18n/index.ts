@@ -6,9 +6,11 @@ import th from "./th";
 export type Language = "en" | "th";
 
 const STORAGE_KEY = "preferred-language";
+const storage =
+  typeof window === "undefined" ? null : window.localStorage;
 
 export function getStoredLanguage(): Language {
-  const stored = localStorage.getItem(STORAGE_KEY);
+  const stored = storage?.getItem(STORAGE_KEY);
   if (stored === "en" || stored === "th") {
     return stored;
   }
@@ -18,7 +20,7 @@ export function getStoredLanguage(): Language {
 
 export function setLanguage(language: Language) {
   i18next.changeLanguage(language);
-  localStorage.setItem(STORAGE_KEY, language);
+  storage?.setItem(STORAGE_KEY, language);
 }
 
 const initialLanguage = getStoredLanguage();
