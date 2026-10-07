@@ -43,6 +43,10 @@ export function Landing() {
             <br />
             <strong>{t("landing.oneConversation")}</strong>
           </div>
+          <div className="art-card art-card-front">
+            <p>{t("landing.conversationMessage")}</p>
+          </div>
+          <span className="scribble">→</span>
         </div>
       </section>
 

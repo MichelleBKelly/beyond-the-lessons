@@ -180,6 +180,26 @@ h1 {
   line-height: 1.2;
   transform: rotate(-7deg);
 }
+.art-card-front {
+  top: 165px;
+  right: 4%;
+  min-height: 230px;
+  background: var(--paper);
+  transform: rotate(5deg);
+}
+.art-card-front p {
+  font-family: "Fraunces", serif;
+  font-size: 29px;
+  line-height: 1.13;
+}
+.scribble {
+  position: absolute;
+  right: 0;
+  bottom: 17px;
+  color: var(--coral);
+  font-size: 58px;
+  transform: rotate(-12deg);
+}
 .steps {
   display: grid;
   grid-template-columns: 0.8fr 1.2fr;
@@ -613,6 +633,10 @@ aside a:hover {
   }
   .art-card-back {
     left: 0;
+  }
+  .art-card-front {
+    right: 0;
+    top: 135px;
   }
   .steps h2 {
     font-size: 40px;
