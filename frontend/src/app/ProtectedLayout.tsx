@@ -19,6 +19,7 @@ export function ProtectedLayout() {
     <div className="app-shell">
       <header className="app-header">
         <Link className="brand" to="/dashboard">
+          <span className="brand-sun" aria-hidden="true" />
           <span>{t("app.brand")}</span>
         </Link>
         <div className="header-user">

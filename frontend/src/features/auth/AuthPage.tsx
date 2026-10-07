@@ -55,6 +55,7 @@ export function AuthPage() {
   return (
     <main className="auth-page">
       <Link className="brand" to="/">
+        <span className="brand-sun" aria-hidden="true" />
         <span>{t("app.brand")}</span>
       </Link>
       <div className="auth-card">

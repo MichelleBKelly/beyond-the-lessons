@@ -10,6 +10,7 @@ export function Landing() {
     <main className="landing">
       <header className="site-header">
         <Link className="brand" to="/">
+          <span className="brand-sun" aria-hidden="true" />
           <span>{t("app.brand")}</span>
         </Link>
         <nav>

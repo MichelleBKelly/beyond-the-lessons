@@ -26,10 +26,21 @@
 .brand {
   display: inline-flex;
   align-items: center;
+  gap: 10px;
   color: var(--ink);
   text-decoration: none;
   font-weight: 700;
   letter-spacing: -0.02em;
+}
+.brand-sun {
+  display: block;
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, var(--coral) 0 6px, transparent 6.5px),
+    repeating-conic-gradient(var(--coral) 0 7deg, transparent 7deg 45deg);
 }
 nav {
   display: flex;
@@ -130,6 +141,15 @@ h1 {
   font-size: clamp(48px, 6vw, 82px);
   line-height: 0.98;
   letter-spacing: -0.055em;
+}
+.hero-copy h1::after {
+  display: block;
+  width: 54px;
+  height: 4px;
+  margin: 22px auto 0;
+  border-radius: 2px;
+  background: var(--coral);
+  content: "";
 }
 .hero-lede {
   max-width: 790px;
