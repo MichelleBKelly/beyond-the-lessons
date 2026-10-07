@@ -1,6 +1,6 @@
 export default {
   app: {
-    brand: "Beyond The Lessons",
+    brand: "Beyond the Lessons",
   },
   nav: {
     home: "Home",
@@ -45,7 +45,7 @@ export default {
     applicationReview: "Once your application is approved, this is where your sessions will live.",
   },
   landing: {
-    heroTitle: "Beyond The Lessons",
+    heroTitle: "Learning through real conversation.",
     heroDescription:
       "We connect classrooms in Thailand with English-speaking volunteers around the world for real conversations that build confidence, connection, and curiosity.",
     howItWorks: "How it works",
