@@ -60,9 +60,6 @@ export default {
     thenTheyTalk: "And then, they talk",
     talkDescription:
       "A simple conversation becomes a chance to practice English, build confidence, and connect with someone.",
-    differentPlaces: "Different places.",
-    oneConversation: "One conversation.",
-    conversationMessage: "English practice with a human connection.",
     allRights: "© 2026 Beyond the Lessons",
     collaboration: "In collaboration with Care Connection Thailand Foundation",
   },

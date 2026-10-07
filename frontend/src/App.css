@@ -107,16 +107,14 @@ nav a,
   margin-top: 8px;
 }
 .hero-section {
-  display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: 6vw;
-  align-items: center;
   max-width: 1240px;
   margin: auto;
   padding: 92px 8vw 110px;
+  text-align: center;
 }
 .hero-copy {
-  max-width: 610px;
+  max-width: 960px;
+  margin: 0 auto;
   animation: rise 0.7s ease both;
 }
 .eyebrow {
@@ -134,8 +132,8 @@ h1 {
   letter-spacing: -0.055em;
 }
 .hero-lede {
-  max-width: 500px;
-  margin-top: 27px;
+  max-width: 790px;
+  margin: 27px auto 0;
   color: var(--muted);
   font-size: 17px;
   line-height: 1.65;
@@ -143,6 +141,7 @@ h1 {
 .hero-actions {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 27px;
   margin-top: 36px;
 }
@@ -150,47 +149,13 @@ h1 {
   color: var(--green);
   font-size: 13px;
 }
-.hero-art {
-  position: relative;
-  min-height: 440px;
-  animation: rise 0.8s 0.15s ease both;
-}
 .sun {
-  position: absolute;
-  top: 8px;
-  right: 13%;
-  width: 245px;
-  height: 245px;
+  display: block;
+  width: 42px;
+  height: 42px;
+  margin: 0 auto 24px;
   border-radius: 50%;
-  background: var(--yellow);
-}
-.art-card {
-  position: absolute;
-  width: 300px;
-  padding: 34px;
-  box-shadow: 0 20px 50px #385d4d1a;
-}
-.art-card-back {
-  top: 60px;
-  left: 6%;
-  background: var(--sage);
-  color: var(--green);
-  font-family: "Fraunces", serif;
-  font-size: 25px;
-  line-height: 1.2;
-  transform: rotate(-7deg);
-}
-.art-card-front {
-  top: 165px;
-  right: 4%;
-  min-height: 230px;
-  background: var(--paper);
-  transform: rotate(5deg);
-}
-.art-card-front p {
-  font-family: "Fraunces", serif;
-  font-size: 29px;
-  line-height: 1.13;
+  background: var(--coral);
 }
 .steps {
   display: grid;
@@ -614,21 +579,6 @@ aside a:hover {
   .steps {
     display: block;
     padding: 68px 25px;
-  }
-  .hero-art {
-    min-height: 360px;
-    margin-top: 35px;
-  }
-  .art-card {
-    width: 250px;
-    padding: 25px;
-  }
-  .art-card-back {
-    left: 0;
-  }
-  .art-card-front {
-    right: 0;
-    top: 135px;
   }
   .steps h2 {
     font-size: 40px;

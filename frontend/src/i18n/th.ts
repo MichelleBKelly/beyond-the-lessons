@@ -63,9 +63,6 @@ export default {
     thenTheyTalk: "แล้วพวกเขาก็พูดคุยกัน",
     talkDescription:
       "การสนทนาง่าย ๆ กลายเป็นโอกาสในการฝึกภาษาอังกฤษ สร้างความมั่นใจ และทำความรู้จักกับผู้คนจากอีกมุมหนึ่งของโลก",
-    differentPlaces: "ต่างสถานที่",
-    oneConversation: "หนึ่งบทสนทนา",
-    conversationMessage: "ฝึกภาษาอังกฤษพร้อมสร้างความสัมพันธ์ระหว่างผู้คน",
         operations: "การดำเนินงาน",
         yourCalendar: "ปฏิทินของคุณ",
         volunteerFallback: "อาสาสมัคร",

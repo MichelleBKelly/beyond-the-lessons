@@ -24,6 +24,7 @@ export function Landing() {
 
       <section className="hero-section">
         <div className="hero-copy">
+          <span className="sun" aria-hidden="true" />
           <h1>{t("landing.heroTitle")}</h1>
           <p className="hero-lede">{t("landing.heroDescription")}</p>
           <div className="hero-actions">
@@ -33,18 +34,6 @@ export function Landing() {
             <a className="text-link" href="#how-it-works">
               {t("landing.howItWorks")} <span>↓</span>
             </a>
-          </div>
-        </div>
-
-        <div className="hero-art">
-          <div className="sun"></div>
-          <div className="art-card art-card-back">
-            {t("landing.differentPlaces")}
-            <br />
-            <strong>{t("landing.oneConversation")}</strong>
-          </div>
-          <div className="art-card art-card-front">
-            <p>{t("landing.conversationMessage")}</p>
           </div>
         </div>
       </section>
