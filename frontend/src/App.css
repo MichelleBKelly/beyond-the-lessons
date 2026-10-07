@@ -149,14 +149,6 @@ h1 {
   color: var(--green);
   font-size: 13px;
 }
-.sun {
-  display: block;
-  width: 42px;
-  height: 42px;
-  margin: 0 auto 24px;
-  border-radius: 50%;
-  background: var(--coral);
-}
 .steps {
   display: grid;
   grid-template-columns: 0.8fr 1.2fr;

@@ -24,7 +24,6 @@ export function Landing() {
 
       <section className="hero-section">
         <div className="hero-copy">
-          <span className="sun" aria-hidden="true" />
           <h1>{t("landing.heroTitle")}</h1>
           <p className="hero-lede">{t("landing.heroDescription")}</p>
           <div className="hero-actions">
