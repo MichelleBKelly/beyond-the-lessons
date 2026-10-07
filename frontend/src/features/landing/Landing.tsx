@@ -46,7 +46,6 @@ export function Landing() {
           <div className="art-card art-card-front">
             <p>{t("landing.conversationMessage")}</p>
           </div>
-          <span className="scribble">→</span>
         </div>
       </section>
 
