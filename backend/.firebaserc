@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "beyond-the-lessons"
-  }
+    "default": "beyond-the-lessons",
+    "staging": "beyond-the-lessons"
+  },
+  "targets": {},
+  "etags": {}
 }

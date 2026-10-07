@@ -55,7 +55,6 @@ export function AuthPage() {
   return (
     <main className="auth-page">
       <Link className="brand" to="/">
-        <span className="brand-mark">B</span>
         <span>{t("app.brand")}</span>
       </Link>
       <div className="auth-card">

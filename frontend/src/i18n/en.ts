@@ -62,8 +62,6 @@ export default {
       "A simple conversation becomes a chance to practice English, build confidence, and connect with someone.",
     differentPlaces: "Different places.",
     oneConversation: "One conversation.",
-    teacherNote: "A teacher's note from Chiang Mai",
-    voiceQuote: "Every student deserves to feel heard.",
     allRights: "© 2026 Beyond the Lessons",
     collaboration: "In collaboration with Care Connection Thailand Foundation",
   },

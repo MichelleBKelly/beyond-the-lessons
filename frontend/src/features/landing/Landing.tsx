@@ -10,7 +10,6 @@ export function Landing() {
     <main className="landing">
       <header className="site-header">
         <Link className="brand" to="/">
-          <span className="brand-mark">B</span>
           <span>{t("app.brand")}</span>
         </Link>
         <nav>
@@ -44,12 +43,6 @@ export function Landing() {
             <br />
             <strong>{t("landing.oneConversation")}</strong>
           </div>
-          <div className="art-card art-card-front">
-            <span className="quote-mark">“</span>
-            <p>{t("landing.voiceQuote")}</p>
-            <span className="art-caption">{t("landing.teacherNote")}</span>
-          </div>
-          <span className="scribble">→</span>
         </div>
       </section>
 

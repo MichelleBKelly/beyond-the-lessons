@@ -19,7 +19,6 @@ export function ProtectedLayout() {
     <div className="app-shell">
       <header className="app-header">
         <Link className="brand" to="/dashboard">
-          <span className="brand-mark">B</span>
           <span>{t("app.brand")}</span>
         </Link>
         <div className="header-user">
